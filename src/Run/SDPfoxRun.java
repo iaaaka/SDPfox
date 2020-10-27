@@ -1,0 +1,372 @@
+
+package Run;
+
+import java.io.*;
+import java.util.Hashtable;
+import Tree.*;
+import java.util.*;
+import Math.StaticFunction;
+import Objects.*;
+import Util.*;
+
+public class SDPfoxRun {
+	private static final int revision = 1798;
+	private static Project project;
+	private static final String INPUT = "-i";
+	private static final String OUTPUT = "-o";
+	private static final String STD_IN = "-std_in";
+	private static final String STD_OUT = "-std_out";
+	private static final String METHOD = "-m";
+	private static final String WIN = "-w";
+	private static final String HELP = "-h";
+	private static final String LOGO = "-logo";
+	private static final String ITER = "-iter";
+	private static final String REF = "-ref";
+	private static final String GROUP_NO = "-gr_no";
+	private static final String SAVE_MATRIX = "-matrix";
+	private static final String SAVE_MATRIX_PLOT = "-mtx_pl";
+	private static final String TREE = "-tree";
+	private static final String PROTDIST = "-protdist";
+	private static final String NEIGHBOR = "-neighbor";
+	private static final String NOSDPGROUP = "-nosdpgr";
+
+	private static final Hashtable<String, String> parameters = new Hashtable<String, String>();
+
+	static {
+		parameters.put(INPUT, "");
+		parameters.put(OUTPUT, "");
+		parameters.put(STD_IN, "");
+		parameters.put(STD_OUT, "");
+		parameters.put(METHOD, "");
+		parameters.put(WIN, "");
+		parameters.put(HELP, "");
+		parameters.put(LOGO, "");
+		parameters.put(ITER, "");
+		parameters.put(REF, "");
+		parameters.put(GROUP_NO, "");
+		parameters.put(SAVE_MATRIX, "");
+		parameters.put(SAVE_MATRIX_PLOT, "");
+		parameters.put(TREE, "");
+		parameters.put(PROTDIST, "");
+		parameters.put(NEIGHBOR, "");
+		parameters.put(NOSDPGROUP, "");
+	}
+	
+	public static int getGroupCount(int seqCount){
+		if(seqCount < 4)
+			return -1;
+		if(seqCount <=10)
+			return 2;
+		if(seqCount <=15)
+			return 4;
+		if(seqCount <=20)
+			return 5;
+		if(seqCount <=30)
+			return 6;
+		if(seqCount <=40)
+			return 7;
+		if(seqCount <=60)
+			return 8;
+		if(seqCount <=80)
+			return 9;
+		if(seqCount > 800)
+			return 100;
+		return seqCount/8;
+	}
+	
+	public static int getSeqInGroupCount(int seqCount, int GroupCount){
+		int tmp = seqCount/GroupCount;
+		if(tmp >= 4)
+			return 4;
+		if(tmp >= 3)
+			return 3;
+		if(tmp >= 2)
+			return 2;
+		return -1;  
+	}
+
+	public static void printHelp(PrintStream os) {
+		try {
+			BufferedReader bf = new BufferedReader(new InputStreamReader(SDPfoxRun.class.getResourceAsStream("/Run/help")));
+			StaticFunction.copyStream(bf, os,100);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static String getHelp(){
+		StringBuffer result = new StringBuffer();
+		PrintStream ps = new PrintStream(StaticFunction.getStreamForStringBuffer(result));
+		printHelp(ps);
+		ps.close();
+		return result.toString();
+	}
+	
+	public static void main(String[] args) {
+		try{
+			run(args);
+		}catch(Exception e){
+			System.out.println("Internal exception. Error message is printed into 'error' file.\n" +
+					"If you want to report this error, please, send mail to 'iaa.aka@gmail.com' " +
+					"with attached description of problem, file with input date and error file.");
+			try {
+				PrintWriter ps = new PrintWriter("error");
+				ps.println("revision: "+revision);
+				ps.print("parameters:\t");
+				for(String s : args)
+					ps.print(s+"\t");
+				ps.println();
+				e.printStackTrace(ps);
+				ps.flush();
+				ps.println("Alignment: ");
+				project.printAlignment(ps);
+				ps.close();
+			} catch (Exception e1) {
+				//System.out.println("Cannot write error file!"+e1.getMessage());
+			}			
+		}
+	}
+
+	public static void run(String[] args) throws Exception {
+		//args = new String[]{"-i","in/alignment/align.fasta","-o","result","-m","treecut","-protdist","phylip protdist","-neighbor","phylip neighbor"};
+		//args = new String[]{"-i","in/alignment/LacI.gde","-o","result","-m","sdpprofile","-logo","logo"};
+		InputStream is;
+		OutputStream os;
+		try {
+			for (int i = 0; i < args.length; i += 2) {
+				if (!parameters.containsKey(args[i]))
+					throw new Exception(args[i]);
+				if (args[i].equals(STD_IN)) {
+					parameters.put(args[i], "1");
+					i--;
+					continue;
+				}
+				if (args[i].equals(STD_OUT)) {
+					parameters.put(args[i], "1");
+					i--;
+					continue;
+				}
+				if (args[i].equals(HELP)) {
+					parameters.put(args[i], "1");
+					i--;
+					continue;
+				}
+				if (args[i].equals(WIN)) {
+					parameters.put(args[i], "1");
+					i--;
+					continue;
+				}
+				if (args[i].equals(NOSDPGROUP)) {
+					parameters.put(args[i], "1");
+					i--;
+					continue;
+				}
+				parameters.put(args[i], args[i + 1]);
+			}
+		} catch (Exception e) {
+			throw new Exception("Incorrect parameters "+e.getMessage());
+		}
+		if (parameters.get(WIN).equals("1")) {
+			// do win
+			return;
+		}
+		if (parameters.get(HELP).equals("1") || args.length == 0) {
+			printHelp(System.out);
+			return;
+		}
+
+		if (parameters.get(STD_IN).equals("1")) {
+			is = System.in;
+		} else {
+			try {
+				is = new FileInputStream(parameters.get(INPUT));
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new Exception("Incorrect input");
+			}
+		}
+		if (parameters.get(STD_OUT).equals("1")) {
+			os = System.out;
+		} else {
+			try {
+				os = new FileOutputStream(parameters.get(OUTPUT));
+			} catch (Exception e) {
+				throw new Exception("Incorrect output");
+			}
+		}
+
+		if (parameters.get(METHOD).equals("treemaker")) {
+			GroupingMatrixes gm = new GroupingMatrixes(parameters.get(INPUT),GroupingMatrixes.VERTICAL_MATRIX);
+			is.close();
+			Node root = TreeMaker.makeUPGMATreeFromDistantMatrix(gm.getDistanceMatrix(), gm.getNumerator());
+			Vector<Node> cl = new Vector<Node>();
+			root.getBestCut(cl);
+			Numerator grnum = new Numerator();
+			Grouping gr = StaticFunction.calculateGroupingFromTreeClasters(grnum, cl);
+			PrintWriter pw = new PrintWriter(os);
+			pw.println(root);
+			int[][] grp = gr.getGroupingForAllGroup();
+			for(int i=0;i<grp.length;i++){
+				pw.println(grnum.getNameForNum(i));
+				for(int j=1;j<=grp[i][0];j++){
+					pw.print(gm.getNumerator().getNameForNum(grp[i][j])+"\t");
+				}
+				pw.println();
+			}
+			pw.close();
+			os.close();
+			return;
+		}
+
+		if (parameters.get(METHOD) == ""
+				&& !(parameters.get(METHOD).equals("sdpgroup")
+						|| parameters.get(METHOD).equals("sdplight")
+						|| parameters.get(METHOD).equals("sdpprofile") 
+						|| parameters.get(METHOD).equals("sdpclust") 
+						|| parameters.get(METHOD).equals("treecut")
+						|| parameters.get(METHOD).equals("gr_estim"))) {
+			throw new Exception("Please, choose correct method!");
+		}
+		project = new Project();
+		project.setAlignmentData(is);
+		is.close();
+		
+		if (parameters.get(METHOD).equals("treecut")) {
+			if(!parameters.get(TREE).equals("")){
+				BufferedReader bf = new BufferedReader(new FileReader(parameters.get(TREE)));
+				String tree = new String();
+				for(String l = bf.readLine();l != null;l = bf.readLine())
+					tree += l;
+				project.setPhylogeneticTree(tree);
+				bf.close();
+			}else{
+				if(!parameters.get(PROTDIST).equals("")){
+					StaticFunction.phylip_protdist = parameters.get(PROTDIST);
+				}
+				if(!parameters.get(NEIGHBOR).equals(""))
+					StaticFunction.phylip_neigbor = parameters.get(NEIGHBOR);
+				project.setPhylogeneticTree();
+			}
+			project.setAlignmentDataWithBestCut();
+			PrintWriter pw = new PrintWriter(os);
+			project.printAlignment(pw);
+			pw.close();
+		}
+
+		if (parameters.get(METHOD).equals("sdpgroup")) {
+			if (project.getProfiles() == null)
+				throw new Exception(
+						"Alignment must containt more then 2 group with more then 1 sequence!");
+			project.sdpGroup();
+			PrintWriter pw = new PrintWriter(os);
+			project.printAlignment(pw);
+			pw.close();
+		}
+		if (parameters.get(METHOD).equals("sdplight")) {
+			PrintWriter pw = new PrintWriter(os);
+			if(project.whithPositions()){
+				pw.println("Thr = " + project.getThreshold());
+				pw.println("P-value = "+project.getPvalue());
+				if (parameters.get(REF) != "") {
+					try {
+						int r = project.getSequenceNo(parameters.get(REF));
+						pw.println("position\t" + parameters.get(REF)+"\tamino acid"
+										+ "\tZ-score");
+						project.printPositions(pw, r);
+					} catch (Exception e) {
+						throw new Exception("unknown reference sequence!");
+					}
+				} else {
+					pw.println("position\tZ-score");
+					project.printPositions(pw);
+				}
+			}else{
+				pw.println("Alignment is ungrouped!");
+			}
+			pw.println("Alignment:");
+			project.printAlignment(pw);
+			pw.close();
+		}
+		if (parameters.get(METHOD).equals("sdpprofile")) {
+			if (project.getProfiles() == null)
+				throw new Exception(
+						"Alignment must containt more then 2 group with more then 1 sequence!");
+			PrintWriter pw = new PrintWriter(os);
+			pw.println("Position weight matrixes:");
+			for(int i=0;i<project.getGroupCount();i++){
+				pw.println(project.getGroupName(i));
+				pw.println(project.getProfileToString(i));
+				pw.println();
+			}
+			pw.println("Sequence weights:");
+			project.printWeights(new PrintWriter(pw));
+			if (parameters.get(LOGO) != "") {
+				for (int i = 0; i < project.getGroupCount(); i++) {
+					OutputStream ls = new FileOutputStream(parameters.get(LOGO)
+							+ "_" + project.getGroupName(i) + ".png");
+					project.printLogo(i, ls);
+					ls.close();
+				}
+			}
+			pw.close();
+		}
+		
+		if (parameters.get(METHOD).equals("gr_estim")){
+			PrintWriter pw = new PrintWriter(os);
+			pw.println("group_name\tZ-score");
+			for(int i=0;i<project.getGroupCount();i++){
+				System.out.print("\r"+project.getGroupName(i));
+				pw.print(project.getGroupName(i)+"\t");
+				double zscore = project.getZscoreOfCumulativeEntropyForGroup(i);
+				pw.println(zscore);
+			}
+			System.out.println("\rfinished");
+			pw.close();
+		}
+		
+		if (parameters.get(METHOD).equals("sdpclust")) {
+			boolean wsdpg = !parameters.get(NOSDPGROUP).equals("1");
+			try {
+				int it = 1000;
+				if (parameters.get(ITER) != "")
+					it = Integer.parseInt(parameters.get(ITER));
+				int gr_no = getGroupCount(project.getSeqCount());
+				if (parameters.get(GROUP_NO) != "") {
+					gr_no = Math.min(Integer.parseInt(parameters.get(GROUP_NO)), project.getSeqCount() / 2);
+				}
+				int seq_no = getSeqInGroupCount(project.getSeqCount(), gr_no);
+				PrintWriter pw = new PrintWriter(os);
+				GroupingMatrixes grm;
+				if (!parameters.get(SAVE_MATRIX).equals("")) {
+					PrintWriter sm =new PrintWriter(new File(parameters.get(SAVE_MATRIX)));
+					for(int i=0;i<project.getSeqCount();i++){
+						sm.print(project.getSeqName(i)+"\t");
+					}
+					grm = project.sdpTree(it, gr_no, seq_no, pw,System.out,sm,wsdpg);
+					sm.println();
+					sm.close();
+				}else
+					grm = project.sdpTree(it, gr_no, seq_no, pw,System.out,wsdpg);
+				if(!parameters.get(SAVE_MATRIX_PLOT).equals("")){
+					project.saveGroupingMatrixImage(grm, parameters.get(SAVE_MATRIX_PLOT), 3);
+				}
+				//save group quality
+				pw.println("ALIGNMENT END");
+				pw.println("Group\tmax dist within group\t min dist between groups");
+				for(int g = 0;g<project.getGroupCount();g++) {
+					if(project.getGroupSize(g) != 0) {
+						double[] d = TreeMaker.calculateINOUT(project.getSeqIdForGroup(g), grm.getDistanceMatrix(), project.getSeqCount());
+						pw.println(project.getGroupName(g)+"\t"+d[0]+"\t"+d[1]);
+					}else
+						pw.println(project.getGroupName(g)+"\tgroup has no sequences");
+				}
+				pw.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new Exception("incorrect parameters");
+			}
+		}
+
+		os.close();
+	}
+}

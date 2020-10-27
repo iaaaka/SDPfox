@@ -1,0 +1,102 @@
+SDPfox 2.0
+Developed by Pavel Mazin, Moscow, FBB MSU. e-mail: iaa.aka@gmail.com
+When using, please cite: Mazin PV et al. “An Automated Stochastic Approach to the Identification of the Protein Specificity Determinants and Functional Subfamilies” (2010)
+
+SDPfox is a program package consisting of six methods to predict specificity-determining positions (SDPs) and/or specificity groups. Running modes:
+1) java -jar SDPfox.jar -m sdplight {-i|-std_in} {-o|-std_out} [-h] [-ref]
+  => method for prediction of SDPs. Input alignment has to be divided into subgroups (sequences before first group notation considered to be ungrouped, ignored in prediction). There have to be at least two sequences in each group, and at least two groups: 
+		%ungrouped_seq_name_1
+		ungrouped_sequence1
+		%ungrouped_seq_name_1
+		ungrouped_sequence1
+		===group_name1===
+		>sequence_name_1
+		sequence1
+		%sequence_name_2
+		sequence2
+		===group_name2===
+		%sequence_name_1
+		sequence3
+		%sequence_name_2
+		sequence4
+Output format:
+	 First line is: "thr = N", where N - the number of SDP determined by Bernoulli cut-off procedure.
+	 All other part of file is list of alignment positions sorted by z-score: 
+	 Alignment_position	Reference_position	Z-score
+2) java -jar SDPfox.jar -m sdpprofile  {-i|-std_in} {-o|-std_out} [-h] [-logo]
+	=> method for construction positional weight matrices (profiles) and weighing of sequences.  Can output logos of profiles for all groups.
+Output format:
+Output file contains position weight matrixes for each specificity groups and weights of all 
+	 sequences for all groups
+	 Group1
+	 weight(position1,acid1)	weight(position2,acid1)	...
+	 weight(position1,acid2)	weight(position2,acid2)	...
+	 ...
+	 Group2
+	 weight(position1,acid1)	weight(position2,acid1)	...
+	 weight(position1,acid2)	weight(position2,acid2)	...
+	 ...
+	 Sequence weights:
+	 weight(sequence1,group1)	weight(sequence1,group2)	...
+	 weight(sequence2,group1)	weight(sequence2,group2)	...
+	 ...
+3) java -jar SDPfox.jar -m sdpgroup  {-i|-std_in} {-o|-std_out} [-h]
+	=> method for dividing a protein family into groups of specificity using a set of training groups. The grouped sequences in the input will be used as training sample.
+Output format is the same as input.
+4) java -jar SDPfox.jar -m sdpclust  {-i|-std_in} {-o|-std_out} [-h] [-iter] [-gr_no] [-nosdpgr]
+	=> method for constructing specificity cluster tree and predicting specificity groups. Any grouping in the input is disregarded.
+Output format is the same as input. The first line contains specificity tree.
+5) java -jar SDPfox.jar -m treecut  {-i|-std_in} {-o|-std_out} [-h] [-tree] [-protdist] [-neighbor]
+	=> method for clusterization of the specificity cluster tree  The tree can be provided via -tree parameter, or will be constructed using UPGMA algorithm (see -protdist and -neighbor parameters).
+Output format is the same as input.
+6) java -jar SDPfox.jar -m gr_estim  {-i|-std_in} {-o|-std_out} [-h]
+	=> method for estimating the quality of the grouping. Prints z-score of cumulative entropy for each group.
+Output format:
+	File contains list of group names with z-scores, one per line.  
+
+Parameters:
+-i file_name - Input file containing alignment in fasta format:
+		>sequence_name_1
+		sequence1
+		>sequence_name_2
+		sequence2
+	or:
+		%sequence_name_1
+		sequence1
+		%sequence_name_2
+		sequence2
+	Alignment may be divided into subgroups, sequences before first group notation considers as ungrouped
+		%ungrouped_seq_name_1
+		ungrouped_sequence1
+		%ungrouped_seq_name_1
+		ungrouped_sequence1
+		===group_name1===
+		>sequence_name_1
+		sequence1
+		%sequence_name_2
+		sequence2
+		===group_name2===
+		%sequence_name_1
+		sequence3
+		%sequence_name_2
+		sequence4
+-std_in - use standard input.
+-o file_name - output file
+-std_out - use standard output.
+-m method_name - Method_name may be "sdplight","sdpprofile","sdpgroup","sdpclust","treecut", "gr_estim"
+-ref seq_name - Name of reference sequence. This parameter may be used for sdplight method. Optional parameter.
+-logo bas_name - Base of name for logo-files. This parameter may be used for sdpprofile method. 
+-iter N - Number of iteration in sdpclust method. Default value is 1000
+-gr_no N - The most likely number of specificity group. Optional parameter.
+-tree file_name - file with tree for treecut method. Tree should be in parenthesis notation.This parameter may be used for treecut method. Optional parameter.
+-protdist path_to_protdist - command for run phylip protdist program. Default value is 'phylip protdist'.This parameter may be used for treecut method. SDPfox is designed for 3.69 version of phylip package. 
+-neighbor path_to_neighbor - command for run phylip neighbor program. Default value is 'phylip neighbor'.This parameter may be used for treecut method. SDPfox is designed for 3.69 version of phylip package.
+-h - Show the help message.
+-nosdpgr - force program return direct results of sdpclust (without consequent sdpgroup)
+
+Examples:
+java -jar SDPfox.jar -o laci_treecut -i laci.fasta -m treecut -protdist "phylip protdist" -neighbor "phylip neighbor"
+java -jar SDPfox.jar -o laci_sdpclust -i laci.fasta -m sdpclust -gr_no 5 -iter 5000
+java -jar SDPfox.jar -o laci_tc.prof -i laci_treecut -m sdpprofile -logo laci_tc
+java -jar SDPfox.jar -o laci.grest -i laci_treecut -m gr_estim
+java -jar SDPfox.jar -o laci.sdp -i laci_sdpclust -m sdplight

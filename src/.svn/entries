@@ -1,0 +1,79 @@
+10
+
+dir
+1876
+https://storage1.bioinf.fbb.msu.ru/svn/src/MazinP/src/SDPfoxWeb/src
+https://storage1.bioinf.fbb.msu.ru/svn/src
+
+
+
+2010-02-24T12:37:21.981294Z
+1798
+mazin
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+0c1906d1-d626-0410-abd6-f053bb19c42c
+
+Exception
+dir
+
+FileLoader
+dir
+
+Math
+dir
+
+Objects
+dir
+
+Run
+dir
+
+Tree
+dir
+
+Util
+dir
+
+Win
+dir
+
+blosum
+dir
+
+for_article_12_13_2010
+dir
+
+from_olga
+dir
+
+matrix
+dir
+
+mysqlbase
+dir
+
+painter
+dir
+
+servlets
+dir
+
+statistic
+dir
+
+test
+dir
+

@@ -1,0 +1,83 @@
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/src/!svn/ver/1437/MazinP/src/SDPfoxWeb/src/from_olga/pdbparser
+END
+a_filereader.java
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/src/!svn/ver/796/MazinP/src/SDPfoxWeb/src/from_olga/pdbparser/a_filereader.java
+END
+a_filewriter.java
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/src/!svn/ver/796/MazinP/src/SDPfoxWeb/src/from_olga/pdbparser/a_filewriter.java
+END
+AminoAcid.java
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/src/!svn/ver/796/MazinP/src/SDPfoxWeb/src/from_olga/pdbparser/AminoAcid.java
+END
+partialVolume.java
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/src/!svn/ver/796/MazinP/src/SDPfoxWeb/src/from_olga/pdbparser/partialVolume.java
+END
+Hetero.java
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/src/!svn/ver/796/MazinP/src/SDPfoxWeb/src/from_olga/pdbparser/Hetero.java
+END
+Model.java
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/src/!svn/ver/796/MazinP/src/SDPfoxWeb/src/from_olga/pdbparser/Model.java
+END
+mindist.java
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/src/!svn/ver/1877/MazinP/src/SDPfoxWeb/src/from_olga/pdbparser/mindist.java
+END
+AminoAcidSet.java
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/src/!svn/ver/796/MazinP/src/SDPfoxWeb/src/from_olga/pdbparser/AminoAcidSet.java
+END
+Molecule.java
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/src/!svn/ver/796/MazinP/src/SDPfoxWeb/src/from_olga/pdbparser/Molecule.java
+END
+Distance.java
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/src/!svn/ver/796/MazinP/src/SDPfoxWeb/src/from_olga/pdbparser/Distance.java
+END
+Structure.java
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/src/!svn/ver/796/MazinP/src/SDPfoxWeb/src/from_olga/pdbparser/Structure.java
+END
+Atom.java
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/src/!svn/ver/796/MazinP/src/SDPfoxWeb/src/from_olga/pdbparser/Atom.java
+END
+Chain.java
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/src/!svn/ver/796/MazinP/src/SDPfoxWeb/src/from_olga/pdbparser/Chain.java
+END
